@@ -1,0 +1,4828 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "VibeDocs API",
+        "description": "AI-Powered Document Management for Romanian Hospitals",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/api/v1/": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Hello World",
+                "description": "Hello World endpoint - confirms backend is running\n\nReturns:\n    dict: Welcome message with timestamp and status",
+                "operationId": "hello_world_api_v1__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health Check",
+                "description": "Health check endpoint for monitoring\n\nReturns:\n    dict: Service health status and version",
+                "operationId": "health_check_api_v1_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/google/login": {
+            "get": {
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Google Login",
+                "description": "Redirect to Google OAuth login page\n\nReturns:\n    Google OAuth URL for user authentication",
+                "operationId": "google_login_api_v1_auth_google_login_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/google/callback": {
+            "get": {
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Google Callback",
+                "description": "Handle Google OAuth callback and create/update user\n\nArgs:\n    code: Authorization code from Google\n    db: Database session\n\nReturns:\n    JWT token response",
+                "operationId": "google_callback_api_v1_auth_google_callback_get",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Code"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Logout",
+                "description": "Logout user (client should discard token)\n\nArgs:\n    current_user: Current authenticated user\n\nReturns:\n    Success message",
+                "operationId": "logout_api_v1_auth_logout_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/me": {
+            "get": {
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Get Current User Info",
+                "description": "Get current user profile with organizations\n\nArgs:\n    current_user: Current authenticated user\n    db: Database session\n\nReturns:\n    User profile with organizations",
+                "operationId": "get_current_user_info_api_v1_auth_me_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserWithOrganizations"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/documents/upload": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Upload Document",
+                "description": "Upload a new document\n\nArgs:\n    file: The document file to upload\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    DocumentUploadResponse with document details and processing status",
+                "operationId": "upload_document_api_v1_documents_upload_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_upload_document_api_v1_documents_upload_post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentUploadResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/documents": {
+            "get": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "List Documents",
+                "description": "List documents with pagination and filtering\n\nArgs:\n    page: Page number (1-indexed)\n    limit: Number of items per page (max 100)\n    status: Filter by document status\n    stage: Filter by document stage\n    classification: Filter by document classification\n    sort_by: Field to sort by\n    sort_order: Sort order (asc or desc)\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Paginated list of documents",
+                "operationId": "list_documents_api_v1_documents_get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Page number",
+                            "default": 1,
+                            "title": "Page"
+                        },
+                        "description": "Page number"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Items per page",
+                            "default": 20,
+                            "title": "Limit"
+                        },
+                        "description": "Items per page"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by status",
+                            "title": "Status"
+                        },
+                        "description": "Filter by status"
+                    },
+                    {
+                        "name": "stage",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by stage",
+                            "title": "Stage"
+                        },
+                        "description": "Filter by stage"
+                    },
+                    {
+                        "name": "classification",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by classification",
+                            "title": "Classification"
+                        },
+                        "description": "Filter by classification"
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "description": "Sort field",
+                            "default": "created_at",
+                            "title": "Sort By"
+                        },
+                        "description": "Sort field"
+                    },
+                    {
+                        "name": "sort_order",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^(asc|desc)$",
+                            "description": "Sort order",
+                            "default": "desc",
+                            "title": "Sort Order"
+                        },
+                        "description": "Sort order"
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedDocumentsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/documents/{document_id}": {
+            "get": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Get Document",
+                "description": "Get document details by ID\n\nArgs:\n    document_id: Document UUID\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Detailed document information",
+                "operationId": "get_document_api_v1_documents__document_id__get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Document Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Update Document",
+                "description": "Update document metadata\n\nArgs:\n    document_id: Document UUID\n    update_data: Document update request data\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Updated document information",
+                "operationId": "update_document_api_v1_documents__document_id__put",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Document Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Delete Document",
+                "description": "Delete a document\n\nArgs:\n    document_id: Document UUID\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Success confirmation",
+                "operationId": "delete_document_api_v1_documents__document_id__delete",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Document Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/documents/{document_id}/download": {
+            "get": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Download Document",
+                "description": "Download document file\n\nArgs:\n    document_id: Document UUID\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    File stream with proper headers",
+                "operationId": "download_document_api_v1_documents__document_id__download_get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Document Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/documents/{document_id}/reprocess": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Reprocess Document",
+                "description": "Reprocess a document with optionally different pipeline\n\nArgs:\n    document_id: Document UUID\n    request_data: Reprocess request with optional pipeline_id\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Job status information",
+                "operationId": "reprocess_document_api_v1_documents__document_id__reprocess_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Document Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentReprocessRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/documents/{document_id}/stage": {
+            "put": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Update Document Stage",
+                "description": "Update document stage\n\nArgs:\n    document_id: Document UUID\n    stage_data: Stage update request with stage and optional comment\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Updated document information",
+                "operationId": "update_document_stage_api_v1_documents__document_id__stage_put",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Document Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentStageUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/documents/{document_id}/assign": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Assign Document",
+                "description": "Assign document to a user\n\nArgs:\n    document_id: Document UUID\n    assign_data: Assignment request with user_id\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Updated document information",
+                "operationId": "assign_document_api_v1_documents__document_id__assign_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Document Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentAssignRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/documents/{document_id}/approve": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Approve Document",
+                "description": "Approve a document\n\nArgs:\n    document_id: Document UUID\n    approve_data: Approval request with optional comment\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Updated document information",
+                "operationId": "approve_document_api_v1_documents__document_id__approve_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Document Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentApproveRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/documents/{document_id}/sign": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Sign Document",
+                "description": "Sign a document\n\nArgs:\n    document_id: Document UUID\n    sign_data: Signature request with signature_data\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Updated document information",
+                "operationId": "sign_document_api_v1_documents__document_id__sign_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Document Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentSignRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/documents/{document_id}/archive": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Archive Document",
+                "description": "Archive a document\n\nArgs:\n    document_id: Document UUID\n    archive_data: Archive request with optional reason\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Updated document information",
+                "operationId": "archive_document_api_v1_documents__document_id__archive_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Document Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentArchiveRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pipelines": {
+            "post": {
+                "tags": [
+                    "pipelines"
+                ],
+                "summary": "Create Pipeline",
+                "description": "Create a new pipeline\n\nArgs:\n    pipeline_data: Pipeline creation data\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Created pipeline information",
+                "operationId": "create_pipeline_api_v1_pipelines_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PipelineCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PipelineResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "pipelines"
+                ],
+                "summary": "List Pipelines",
+                "description": "List all pipelines in the organization\n\nArgs:\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    List of pipelines",
+                "operationId": "list_pipelines_api_v1_pipelines_get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PipelineResponse"
+                                    },
+                                    "title": "Response List Pipelines Api V1 Pipelines Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pipelines/{pipeline_id}": {
+            "get": {
+                "tags": [
+                    "pipelines"
+                ],
+                "summary": "Get Pipeline",
+                "description": "Get pipeline details by ID\n\nArgs:\n    pipeline_id: Pipeline UUID\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Detailed pipeline information",
+                "operationId": "get_pipeline_api_v1_pipelines__pipeline_id__get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "pipeline_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Pipeline Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PipelineDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "pipelines"
+                ],
+                "summary": "Update Pipeline",
+                "description": "Update pipeline configuration\n\nArgs:\n    pipeline_id: Pipeline UUID\n    update_data: Pipeline update data\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Updated pipeline information",
+                "operationId": "update_pipeline_api_v1_pipelines__pipeline_id__put",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "pipeline_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Pipeline Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PipelineUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PipelineResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "pipelines"
+                ],
+                "summary": "Delete Pipeline",
+                "description": "Delete a pipeline\n\nArgs:\n    pipeline_id: Pipeline UUID\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Success confirmation",
+                "operationId": "delete_pipeline_api_v1_pipelines__pipeline_id__delete",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "pipeline_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Pipeline Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pipelines/{pipeline_id}/test": {
+            "post": {
+                "tags": [
+                    "pipelines"
+                ],
+                "summary": "Test Pipeline",
+                "description": "Test a pipeline with a sample file\n\nArgs:\n    pipeline_id: Pipeline UUID\n    test_data: Test request with sample file ID\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Test result with processing details",
+                "operationId": "test_pipeline_api_v1_pipelines__pipeline_id__test_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "pipeline_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Pipeline Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PipelineTestRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PipelineTestResult"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pipelines/{pipeline_id}/stats": {
+            "get": {
+                "tags": [
+                    "pipelines"
+                ],
+                "summary": "Get Pipeline Stats",
+                "description": "Get pipeline statistics\n\nArgs:\n    pipeline_id: Pipeline UUID\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Pipeline statistics including success rate and timing",
+                "operationId": "get_pipeline_stats_api_v1_pipelines__pipeline_id__stats_get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "pipeline_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Pipeline Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PipelineStatsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/pipelines/{pipeline_id}/clone": {
+            "post": {
+                "tags": [
+                    "pipelines"
+                ],
+                "summary": "Clone Pipeline",
+                "description": "Clone an existing pipeline\n\nArgs:\n    pipeline_id: Pipeline UUID to clone\n    clone_data: Clone request with new name\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Cloned pipeline information",
+                "operationId": "clone_pipeline_api_v1_pipelines__pipeline_id__clone_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "pipeline_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Pipeline Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PipelineCloneRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PipelineResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/workflows/create-from-chat": {
+            "post": {
+                "tags": [
+                    "workflows"
+                ],
+                "summary": "Create Workflow From Chat",
+                "description": "Create a workflow from natural language prompt using AI\n\nArgs:\n    request: Chat request with prompt and context\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Created workflow information",
+                "operationId": "create_workflow_from_chat_api_v1_workflows_create_from_chat_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WorkflowCreateFromChatRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkflowResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/workflows": {
+            "get": {
+                "tags": [
+                    "workflows"
+                ],
+                "summary": "List Workflows",
+                "description": "List all workflows in the organization\n\nArgs:\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    List of workflows",
+                "operationId": "list_workflows_api_v1_workflows_get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/WorkflowResponse"
+                                    },
+                                    "title": "Response List Workflows Api V1 Workflows Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/workflows/{workflow_id}": {
+            "get": {
+                "tags": [
+                    "workflows"
+                ],
+                "summary": "Get Workflow",
+                "description": "Get workflow details by ID\n\nArgs:\n    workflow_id: Workflow UUID\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Detailed workflow information",
+                "operationId": "get_workflow_api_v1_workflows__workflow_id__get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workflow_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Workflow Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkflowDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "workflows"
+                ],
+                "summary": "Update Workflow",
+                "description": "Update workflow configuration\n\nArgs:\n    workflow_id: Workflow UUID\n    update_data: Workflow update data\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Updated workflow information",
+                "operationId": "update_workflow_api_v1_workflows__workflow_id__put",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workflow_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Workflow Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WorkflowUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkflowResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "workflows"
+                ],
+                "summary": "Delete Workflow",
+                "description": "Delete a workflow\n\nArgs:\n    workflow_id: Workflow UUID\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Success confirmation",
+                "operationId": "delete_workflow_api_v1_workflows__workflow_id__delete",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workflow_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Workflow Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/workflows/{workflow_id}/execute": {
+            "post": {
+                "tags": [
+                    "workflows"
+                ],
+                "summary": "Execute Workflow",
+                "description": "Execute a workflow with given parameters\n\nArgs:\n    workflow_id: Workflow UUID\n    request: Execution request with document IDs and parameters\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Workflow execution information",
+                "operationId": "execute_workflow_api_v1_workflows__workflow_id__execute_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "workflow_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Workflow Id"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WorkflowExecutionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkflowExecutionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/workflows/suggest": {
+            "post": {
+                "tags": [
+                    "workflows"
+                ],
+                "summary": "Suggest Workflow",
+                "description": "Get AI-powered workflow suggestions based on document type or use case\n\nArgs:\n    request: Suggestion request\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Workflow suggestion",
+                "operationId": "suggest_workflow_api_v1_workflows_suggest_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WorkflowSuggestionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WorkflowSuggestionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/chat/message": {
+            "post": {
+                "tags": [
+                    "chat"
+                ],
+                "summary": "Send Chat Message",
+                "description": "Send a chat message and get AI response\n\nArgs:\n    request: Chat message request\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    Chat response with results and suggested actions",
+                "operationId": "send_chat_message_api_v1_chat_message_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChatMessageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/chat/conversations": {
+            "get": {
+                "tags": [
+                    "chat"
+                ],
+                "summary": "Get Conversations",
+                "description": "Get conversation history\n\nArgs:\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    List of conversations",
+                "operationId": "get_conversations_api_v1_chat_conversations_get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ConversationResponse"
+                                    },
+                                    "title": "Response Get Conversations Api V1 Chat Conversations Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/search/documents": {
+            "post": {
+                "tags": [
+                    "search"
+                ],
+                "summary": "Search Documents",
+                "description": "Search documents using text, semantic, or hybrid search\n\nArgs:\n    request: Search request with query, filters, and search type\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    SearchResultsResponse with matching documents and relevance scores",
+                "operationId": "search_documents_api_v1_search_documents_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentSearchRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchResultsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/search/semantic": {
+            "post": {
+                "tags": [
+                    "search"
+                ],
+                "summary": "Semantic Search",
+                "description": "Perform semantic search using vector embeddings\n\nArgs:\n    request: Semantic search request with query and parameters\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    SemanticSearchResponse with similar documents and similarity scores",
+                "operationId": "semantic_search_api_v1_search_semantic_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SemanticSearchRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SemanticSearchResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/search/facets": {
+            "get": {
+                "tags": [
+                    "search"
+                ],
+                "summary": "Get Facets",
+                "description": "Get faceted counts for specified fields\n\nArgs:\n    field: List of fields to get facet counts for (e.g., classification, stage, status)\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    FacetsResponse with counts for each field value",
+                "operationId": "get_facets_api_v1_search_facets_get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "field",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "Fields to get facet counts for",
+                            "title": "Field"
+                        },
+                        "description": "Fields to get facet counts for"
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FacetsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/registry/search": {
+            "get": {
+                "tags": [
+                    "registry"
+                ],
+                "summary": "Metadata Search",
+                "description": "Search documents by metadata fields\n\nArgs:\n    page: Page number for pagination\n    limit: Number of results per page\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n    **metadata_filters: Dynamic metadata filters passed as query parameters\n        e.g., ?metadata.vendor=SupplierX&metadata.amount_gt=1000\n\nReturns:\n    PaginatedDocumentsResponse with matching documents\n\nExamples:\n    - Search by vendor: GET /registry/search?metadata.vendor=SupplierX\n    - Search by amount range: GET /registry/search?metadata.amount_gt=1000&metadata.amount_lt=5000\n    - Search by date: GET /registry/search?metadata.invoice_date=2024-01-15",
+                "operationId": "metadata_search_api_v1_registry_search_get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1,
+                            "title": "Page"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "default": 20,
+                            "title": "Limit"
+                        }
+                    },
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "title": "Metadata Filters"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedDocumentsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/registry/query": {
+            "post": {
+                "tags": [
+                    "registry"
+                ],
+                "summary": "Execute Query",
+                "description": "Execute a SQL query on the document registry\n\n**WARNING**: This endpoint allows SQL execution and should be restricted to admin users\nin production. Currently available for testing purposes.\n\nArgs:\n    request: Query request with SQL and parameters\n    current_user: Current authenticated user\n    organization: Current organization context\n    db: Database session\n\nReturns:\n    QueryResultResponse with query results\n\nSecurity Notes:\n    - Organization ID is automatically injected into WHERE clause\n    - Only SELECT queries are allowed\n    - Query parameters should be used to prevent SQL injection",
+                "operationId": "execute_query_api_v1_registry_query_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "X-Organization-ID",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "X-Organization-Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegistryQueryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QueryResultResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Body_upload_document_api_v1_documents_upload_post": {
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "title": "File"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "file"
+                ],
+                "title": "Body_upload_document_api_v1_documents_upload_post"
+            },
+            "ChatAction": {
+                "properties": {
+                    "action_type": {
+                        "type": "string",
+                        "title": "Action Type",
+                        "description": "Type of action (search, create_workflow, create_task)"
+                    },
+                    "label": {
+                        "type": "string",
+                        "title": "Label",
+                        "description": "Human-readable action label"
+                    },
+                    "parameters": {
+                        "type": "object",
+                        "title": "Parameters"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "action_type",
+                    "label"
+                ],
+                "title": "ChatAction",
+                "description": "Schema for suggested action in chat response"
+            },
+            "ChatMessageRequest": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Message",
+                        "description": "User message"
+                    },
+                    "context": {
+                        "type": "object",
+                        "title": "Context",
+                        "description": "Conversation context"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message"
+                ],
+                "title": "ChatMessageRequest",
+                "description": "Schema for chat message request"
+            },
+            "ChatResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "AI response message"
+                    },
+                    "results": {
+                        "items": {
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Results",
+                        "description": "Search or query results"
+                    },
+                    "suggested_actions": {
+                        "items": {
+                            "$ref": "#/components/schemas/ChatAction"
+                        },
+                        "type": "array",
+                        "title": "Suggested Actions",
+                        "description": "Suggested follow-up actions"
+                    },
+                    "conversation_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Conversation Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message"
+                ],
+                "title": "ChatResponse",
+                "description": "Schema for chat response"
+            },
+            "ConversationResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "organization_id": {
+                        "type": "string",
+                        "title": "Organization Id"
+                    },
+                    "title": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title"
+                    },
+                    "last_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Message"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    },
+                    "message_count": {
+                        "type": "integer",
+                        "title": "Message Count",
+                        "default": 0
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "organization_id",
+                    "created_at"
+                ],
+                "title": "ConversationResponse",
+                "description": "Schema for conversation history"
+            },
+            "DateRangeFilter": {
+                "properties": {
+                    "from": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From"
+                    },
+                    "to": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "To"
+                    }
+                },
+                "type": "object",
+                "title": "DateRangeFilter",
+                "description": "Schema for date range filter"
+            },
+            "DocumentApproveRequest": {
+                "properties": {
+                    "comment": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Comment"
+                    }
+                },
+                "type": "object",
+                "title": "DocumentApproveRequest",
+                "description": "Schema for approving a document"
+            },
+            "DocumentArchiveRequest": {
+                "properties": {
+                    "reason": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Reason"
+                    }
+                },
+                "type": "object",
+                "title": "DocumentArchiveRequest",
+                "description": "Schema for archiving a document"
+            },
+            "DocumentAssignRequest": {
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "title": "User Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "user_id"
+                ],
+                "title": "DocumentAssignRequest",
+                "description": "Schema for assigning a document"
+            },
+            "DocumentDetailResponse": {
+                "properties": {
+                    "filename": {
+                        "type": "string",
+                        "title": "Filename"
+                    },
+                    "file_type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "File Type"
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "organization_id": {
+                        "type": "string",
+                        "title": "Organization Id"
+                    },
+                    "file_size": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "File Size"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "stage": {
+                        "type": "string",
+                        "title": "Stage"
+                    },
+                    "classification": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Classification"
+                    },
+                    "uploaded_by_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Uploaded By Id"
+                    },
+                    "assigned_to_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Assigned To Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    },
+                    "text_content": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Text Content"
+                    },
+                    "doc_metadata": {
+                        "type": "object",
+                        "title": "Doc Metadata",
+                        "default": {}
+                    },
+                    "extracted_fields": {
+                        "type": "object",
+                        "title": "Extracted Fields",
+                        "default": {}
+                    },
+                    "blob_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Blob Url"
+                    },
+                    "pipeline_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pipeline Id"
+                    },
+                    "processing_started_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Processing Started At"
+                    },
+                    "processing_completed_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Processing Completed At"
+                    },
+                    "error_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Error Message"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "filename",
+                    "id",
+                    "organization_id",
+                    "status",
+                    "stage",
+                    "created_at"
+                ],
+                "title": "DocumentDetailResponse",
+                "description": "Schema for detailed document response"
+            },
+            "DocumentReprocessRequest": {
+                "properties": {
+                    "pipeline_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pipeline Id"
+                    }
+                },
+                "type": "object",
+                "title": "DocumentReprocessRequest",
+                "description": "Schema for reprocessing a document"
+            },
+            "DocumentResponse": {
+                "properties": {
+                    "filename": {
+                        "type": "string",
+                        "title": "Filename"
+                    },
+                    "file_type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "File Type"
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "organization_id": {
+                        "type": "string",
+                        "title": "Organization Id"
+                    },
+                    "file_size": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "File Size"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "stage": {
+                        "type": "string",
+                        "title": "Stage"
+                    },
+                    "classification": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Classification"
+                    },
+                    "uploaded_by_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Uploaded By Id"
+                    },
+                    "assigned_to_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Assigned To Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "filename",
+                    "id",
+                    "organization_id",
+                    "status",
+                    "stage",
+                    "created_at"
+                ],
+                "title": "DocumentResponse",
+                "description": "Schema for document response"
+            },
+            "DocumentSearchRequest": {
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "title": "Query",
+                        "description": "Search query text"
+                    },
+                    "filters": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SearchFilters"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "search_type": {
+                        "type": "string",
+                        "enum": [
+                            "text",
+                            "semantic",
+                            "hybrid"
+                        ],
+                        "title": "Search Type",
+                        "description": "Type of search to perform",
+                        "default": "hybrid"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "minimum": 1.0,
+                        "title": "Page",
+                        "default": 1
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "maximum": 100.0,
+                        "minimum": 1.0,
+                        "title": "Limit",
+                        "default": 20
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "query"
+                ],
+                "title": "DocumentSearchRequest",
+                "description": "Schema for document search request"
+            },
+            "DocumentSignRequest": {
+                "properties": {
+                    "signature_data": {
+                        "type": "string",
+                        "title": "Signature Data"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "signature_data"
+                ],
+                "title": "DocumentSignRequest",
+                "description": "Schema for signing a document"
+            },
+            "DocumentStageUpdateRequest": {
+                "properties": {
+                    "stage": {
+                        "type": "string",
+                        "title": "Stage"
+                    },
+                    "comment": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Comment"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "stage"
+                ],
+                "title": "DocumentStageUpdateRequest",
+                "description": "Schema for updating document stage"
+            },
+            "DocumentUpdateRequest": {
+                "properties": {
+                    "filename": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Filename"
+                    },
+                    "classification": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Classification"
+                    },
+                    "stage": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Stage"
+                    },
+                    "metadata": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Metadata"
+                    },
+                    "assigned_to_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Assigned To Id"
+                    }
+                },
+                "type": "object",
+                "title": "DocumentUpdateRequest",
+                "description": "Schema for updating a document"
+            },
+            "DocumentUploadResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "filename": {
+                        "type": "string",
+                        "title": "Filename"
+                    },
+                    "file_size": {
+                        "type": "integer",
+                        "title": "File Size"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "processing_job_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Processing Job Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "filename",
+                    "file_size",
+                    "status"
+                ],
+                "title": "DocumentUploadResponse",
+                "description": "Schema for document upload response"
+            },
+            "FacetCount": {
+                "properties": {
+                    "value": {
+                        "type": "string",
+                        "title": "Value"
+                    },
+                    "count": {
+                        "type": "integer",
+                        "title": "Count"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "value",
+                    "count"
+                ],
+                "title": "FacetCount",
+                "description": "Schema for facet count"
+            },
+            "FacetsResponse": {
+                "properties": {
+                    "facets": {
+                        "additionalProperties": {
+                            "items": {
+                                "$ref": "#/components/schemas/FacetCount"
+                            },
+                            "type": "array"
+                        },
+                        "type": "object",
+                        "title": "Facets",
+                        "description": "Map of field name to list of value counts"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "facets"
+                ],
+                "title": "FacetsResponse",
+                "description": "Schema for facets response"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "PaginatedDocumentsResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentResponse"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "title": "Limit"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "limit",
+                    "pages"
+                ],
+                "title": "PaginatedDocumentsResponse",
+                "description": "Schema for paginated documents response"
+            },
+            "PipelineCloneRequest": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name",
+                        "description": "Name for the cloned pipeline"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "title": "PipelineCloneRequest",
+                "description": "Schema for cloning a pipeline"
+            },
+            "PipelineCreateRequest": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Type",
+                        "description": "Pipeline type (pdf, image, email, etc.)"
+                    },
+                    "config": {
+                        "type": "object",
+                        "title": "Config",
+                        "description": "Pipeline configuration"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "title": "Is Active",
+                        "default": true
+                    },
+                    "is_default": {
+                        "type": "boolean",
+                        "title": "Is Default",
+                        "default": false
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "title": "PipelineCreateRequest",
+                "description": "Schema for creating a pipeline"
+            },
+            "PipelineDetailResponse": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Type",
+                        "description": "Pipeline type (pdf, image, email, etc.)"
+                    },
+                    "config": {
+                        "type": "object",
+                        "title": "Config",
+                        "description": "Pipeline configuration"
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "organization_id": {
+                        "type": "string",
+                        "title": "Organization Id"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "title": "Is Active"
+                    },
+                    "is_default": {
+                        "type": "boolean",
+                        "title": "Is Default"
+                    },
+                    "documents_processed": {
+                        "type": "integer",
+                        "title": "Documents Processed"
+                    },
+                    "success_count": {
+                        "type": "integer",
+                        "title": "Success Count"
+                    },
+                    "failure_count": {
+                        "type": "integer",
+                        "title": "Failure Count"
+                    },
+                    "avg_processing_time_ms": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Avg Processing Time Ms"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "id",
+                    "organization_id",
+                    "is_active",
+                    "is_default",
+                    "documents_processed",
+                    "success_count",
+                    "failure_count",
+                    "created_at"
+                ],
+                "title": "PipelineDetailResponse",
+                "description": "Schema for detailed pipeline response"
+            },
+            "PipelineResponse": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Type",
+                        "description": "Pipeline type (pdf, image, email, etc.)"
+                    },
+                    "config": {
+                        "type": "object",
+                        "title": "Config",
+                        "description": "Pipeline configuration"
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "organization_id": {
+                        "type": "string",
+                        "title": "Organization Id"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "title": "Is Active"
+                    },
+                    "is_default": {
+                        "type": "boolean",
+                        "title": "Is Default"
+                    },
+                    "documents_processed": {
+                        "type": "integer",
+                        "title": "Documents Processed"
+                    },
+                    "success_count": {
+                        "type": "integer",
+                        "title": "Success Count"
+                    },
+                    "failure_count": {
+                        "type": "integer",
+                        "title": "Failure Count"
+                    },
+                    "avg_processing_time_ms": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Avg Processing Time Ms"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "id",
+                    "organization_id",
+                    "is_active",
+                    "is_default",
+                    "documents_processed",
+                    "success_count",
+                    "failure_count",
+                    "created_at"
+                ],
+                "title": "PipelineResponse",
+                "description": "Schema for pipeline response"
+            },
+            "PipelineStatsResponse": {
+                "properties": {
+                    "pipeline_id": {
+                        "type": "string",
+                        "title": "Pipeline Id"
+                    },
+                    "pipeline_name": {
+                        "type": "string",
+                        "title": "Pipeline Name"
+                    },
+                    "documents_processed": {
+                        "type": "integer",
+                        "title": "Documents Processed"
+                    },
+                    "success_count": {
+                        "type": "integer",
+                        "title": "Success Count"
+                    },
+                    "failure_count": {
+                        "type": "integer",
+                        "title": "Failure Count"
+                    },
+                    "success_rate": {
+                        "type": "number",
+                        "title": "Success Rate"
+                    },
+                    "avg_processing_time_ms": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Avg Processing Time Ms"
+                    },
+                    "last_used": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Used"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "pipeline_id",
+                    "pipeline_name",
+                    "documents_processed",
+                    "success_count",
+                    "failure_count",
+                    "success_rate"
+                ],
+                "title": "PipelineStatsResponse",
+                "description": "Schema for pipeline statistics"
+            },
+            "PipelineTestRequest": {
+                "properties": {
+                    "sample_file_id": {
+                        "type": "string",
+                        "title": "Sample File Id",
+                        "description": "Document ID to use for testing"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "sample_file_id"
+                ],
+                "title": "PipelineTestRequest",
+                "description": "Schema for testing a pipeline"
+            },
+            "PipelineTestResult": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success"
+                    },
+                    "processing_time_ms": {
+                        "type": "number",
+                        "title": "Processing Time Ms"
+                    },
+                    "text_content_preview": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Text Content Preview"
+                    },
+                    "extracted_fields": {
+                        "type": "object",
+                        "title": "Extracted Fields"
+                    },
+                    "classification": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Classification"
+                    },
+                    "error_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Error Message"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "success",
+                    "processing_time_ms"
+                ],
+                "title": "PipelineTestResult",
+                "description": "Schema for pipeline test result"
+            },
+            "PipelineUpdateRequest": {
+                "properties": {
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Type"
+                    },
+                    "config": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Config"
+                    },
+                    "is_active": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Is Active"
+                    },
+                    "is_default": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Is Default"
+                    }
+                },
+                "type": "object",
+                "title": "PipelineUpdateRequest",
+                "description": "Schema for updating a pipeline"
+            },
+            "QueryResultResponse": {
+                "properties": {
+                    "columns": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Columns"
+                    },
+                    "rows": {
+                        "items": {
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Rows"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "execution_time_ms": {
+                        "type": "number",
+                        "title": "Execution Time Ms"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "columns",
+                    "rows",
+                    "total",
+                    "execution_time_ms"
+                ],
+                "title": "QueryResultResponse",
+                "description": "Schema for SQL query result response"
+            },
+            "RegistryQueryRequest": {
+                "properties": {
+                    "sql": {
+                        "type": "string",
+                        "title": "Sql",
+                        "description": "SQL query to execute"
+                    },
+                    "params": {
+                        "anyOf": [
+                            {
+                                "items": {},
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Params",
+                        "description": "Query parameters",
+                        "default": []
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "sql"
+                ],
+                "title": "RegistryQueryRequest",
+                "description": "Schema for registry SQL query"
+            },
+            "SearchFilters": {
+                "properties": {
+                    "date_range": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DateRangeFilter"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "stage": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Stage"
+                    },
+                    "classification": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Classification"
+                    },
+                    "uploaded_by_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Uploaded By Id"
+                    },
+                    "assigned_to_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Assigned To Id"
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status"
+                    }
+                },
+                "type": "object",
+                "title": "SearchFilters",
+                "description": "Schema for search filters"
+            },
+            "SearchResultItem": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "filename": {
+                        "type": "string",
+                        "title": "Filename"
+                    },
+                    "classification": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Classification"
+                    },
+                    "stage": {
+                        "type": "string",
+                        "title": "Stage"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "text_snippet": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Text Snippet"
+                    },
+                    "relevance_score": {
+                        "type": "number",
+                        "title": "Relevance Score",
+                        "description": "Search relevance score"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "title": "Metadata",
+                        "default": {}
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "filename",
+                    "stage",
+                    "status",
+                    "relevance_score",
+                    "created_at"
+                ],
+                "title": "SearchResultItem",
+                "description": "Schema for a single search result"
+            },
+            "SearchResultsResponse": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/SearchResultItem"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "query": {
+                        "type": "string",
+                        "title": "Query"
+                    },
+                    "search_type": {
+                        "type": "string",
+                        "title": "Search Type"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "title": "Limit"
+                    },
+                    "pages": {
+                        "type": "integer",
+                        "title": "Pages"
+                    },
+                    "execution_time_ms": {
+                        "type": "number",
+                        "title": "Execution Time Ms",
+                        "description": "Query execution time in milliseconds"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total",
+                    "query",
+                    "search_type",
+                    "page",
+                    "limit",
+                    "pages",
+                    "execution_time_ms"
+                ],
+                "title": "SearchResultsResponse",
+                "description": "Schema for search results response"
+            },
+            "SemanticSearchRequest": {
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "title": "Query",
+                        "description": "Semantic query text"
+                    },
+                    "top_k": {
+                        "type": "integer",
+                        "maximum": 100.0,
+                        "minimum": 1.0,
+                        "title": "Top K",
+                        "description": "Number of results to return",
+                        "default": 10
+                    },
+                    "threshold": {
+                        "type": "number",
+                        "maximum": 1.0,
+                        "minimum": 0.0,
+                        "title": "Threshold",
+                        "description": "Minimum similarity threshold",
+                        "default": 0.7
+                    },
+                    "filters": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SearchFilters"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "query"
+                ],
+                "title": "SemanticSearchRequest",
+                "description": "Schema for semantic search request"
+            },
+            "SemanticSearchResponse": {
+                "properties": {
+                    "results": {
+                        "items": {
+                            "$ref": "#/components/schemas/SemanticSearchResult"
+                        },
+                        "type": "array",
+                        "title": "Results"
+                    },
+                    "query": {
+                        "type": "string",
+                        "title": "Query"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "execution_time_ms": {
+                        "type": "number",
+                        "title": "Execution Time Ms"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "results",
+                    "query",
+                    "total",
+                    "execution_time_ms"
+                ],
+                "title": "SemanticSearchResponse",
+                "description": "Schema for semantic search response"
+            },
+            "SemanticSearchResult": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "filename": {
+                        "type": "string",
+                        "title": "Filename"
+                    },
+                    "text_snippet": {
+                        "type": "string",
+                        "title": "Text Snippet"
+                    },
+                    "similarity_score": {
+                        "type": "number",
+                        "maximum": 1.0,
+                        "minimum": 0.0,
+                        "title": "Similarity Score"
+                    },
+                    "classification": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Classification"
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "title": "Metadata",
+                        "default": {}
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "filename",
+                    "text_snippet",
+                    "similarity_score"
+                ],
+                "title": "SemanticSearchResult",
+                "description": "Schema for semantic search result"
+            },
+            "UserWithOrganizations": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "full_name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Full Name"
+                    },
+                    "picture_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Picture Url"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "title": "Is Active",
+                        "default": true
+                    },
+                    "is_superuser": {
+                        "type": "boolean",
+                        "title": "Is Superuser",
+                        "default": false
+                    },
+                    "preferences": {
+                        "type": "object",
+                        "title": "Preferences",
+                        "default": {}
+                    },
+                    "last_login": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Login"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    },
+                    "organizations": {
+                        "items": {
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Organizations",
+                        "default": []
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "email",
+                    "created_at"
+                ],
+                "title": "UserWithOrganizations",
+                "description": "User profile with organization memberships"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            },
+            "WorkflowCreateFromChatRequest": {
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Prompt",
+                        "description": "Natural language prompt describing the workflow"
+                    },
+                    "context": {
+                        "type": "object",
+                        "title": "Context",
+                        "description": "Additional context for workflow creation"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "prompt"
+                ],
+                "title": "WorkflowCreateFromChatRequest",
+                "description": "Schema for creating a workflow from chat prompt"
+            },
+            "WorkflowDetailResponse": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "steps": {
+                        "items": {
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Steps",
+                        "description": "Array of step definitions"
+                    },
+                    "triggers": {
+                        "type": "object",
+                        "title": "Triggers",
+                        "description": "Event triggers"
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "organization_id": {
+                        "type": "string",
+                        "title": "Organization Id"
+                    },
+                    "created_by_ai": {
+                        "type": "boolean",
+                        "title": "Created By Ai"
+                    },
+                    "ai_prompt": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Ai Prompt"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    },
+                    "execution_count": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Execution Count",
+                        "default": 0
+                    },
+                    "last_executed_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Executed At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "id",
+                    "organization_id",
+                    "created_by_ai",
+                    "created_at"
+                ],
+                "title": "WorkflowDetailResponse",
+                "description": "Schema for detailed workflow response with execution history"
+            },
+            "WorkflowExecutionRequest": {
+                "properties": {
+                    "document_ids": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Document Ids",
+                        "description": "Document IDs to process"
+                    },
+                    "parameters": {
+                        "type": "object",
+                        "title": "Parameters",
+                        "description": "Execution parameters"
+                    }
+                },
+                "type": "object",
+                "title": "WorkflowExecutionRequest",
+                "description": "Schema for executing a workflow"
+            },
+            "WorkflowExecutionResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "workflow_id": {
+                        "type": "string",
+                        "title": "Workflow Id"
+                    },
+                    "organization_id": {
+                        "type": "string",
+                        "title": "Organization Id"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "started_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Started At"
+                    },
+                    "completed_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Completed At"
+                    },
+                    "results": {
+                        "type": "object",
+                        "title": "Results"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "workflow_id",
+                    "organization_id",
+                    "status",
+                    "started_at",
+                    "created_at"
+                ],
+                "title": "WorkflowExecutionResponse",
+                "description": "Schema for workflow execution response"
+            },
+            "WorkflowResponse": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "steps": {
+                        "items": {
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Steps",
+                        "description": "Array of step definitions"
+                    },
+                    "triggers": {
+                        "type": "object",
+                        "title": "Triggers",
+                        "description": "Event triggers"
+                    },
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "organization_id": {
+                        "type": "string",
+                        "title": "Organization Id"
+                    },
+                    "created_by_ai": {
+                        "type": "boolean",
+                        "title": "Created By Ai"
+                    },
+                    "ai_prompt": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Ai Prompt"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "id",
+                    "organization_id",
+                    "created_by_ai",
+                    "created_at"
+                ],
+                "title": "WorkflowResponse",
+                "description": "Schema for workflow response"
+            },
+            "WorkflowStep": {
+                "properties": {
+                    "step_type": {
+                        "type": "string",
+                        "title": "Step Type"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "config": {
+                        "type": "object",
+                        "title": "Config"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "step_type",
+                    "name"
+                ],
+                "title": "WorkflowStep",
+                "description": "Schema for a workflow step"
+            },
+            "WorkflowSuggestionRequest": {
+                "properties": {
+                    "document_type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Document Type",
+                        "description": "Document type to suggest workflow for"
+                    },
+                    "use_case": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Use Case",
+                        "description": "Specific use case or scenario"
+                    }
+                },
+                "type": "object",
+                "title": "WorkflowSuggestionRequest",
+                "description": "Schema for workflow suggestion request"
+            },
+            "WorkflowSuggestionResponse": {
+                "properties": {
+                    "suggested_name": {
+                        "type": "string",
+                        "title": "Suggested Name"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description"
+                    },
+                    "steps": {
+                        "items": {
+                            "$ref": "#/components/schemas/WorkflowStep"
+                        },
+                        "type": "array",
+                        "title": "Steps"
+                    },
+                    "reasoning": {
+                        "type": "string",
+                        "title": "Reasoning",
+                        "description": "Explanation of why this workflow is suggested"
+                    },
+                    "similar_workflows": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Similar Workflows",
+                        "description": "IDs of similar existing workflows"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "suggested_name",
+                    "description",
+                    "steps",
+                    "reasoning"
+                ],
+                "title": "WorkflowSuggestionResponse",
+                "description": "Schema for workflow suggestion response"
+            },
+            "WorkflowUpdateRequest": {
+                "properties": {
+                    "name": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Name"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    },
+                    "steps": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Steps"
+                    },
+                    "triggers": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Triggers"
+                    }
+                },
+                "type": "object",
+                "title": "WorkflowUpdateRequest",
+                "description": "Schema for updating a workflow"
+            }
+        },
+        "securitySchemes": {
+            "HTTPBearer": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        }
+    }
+}
