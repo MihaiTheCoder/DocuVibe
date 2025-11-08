@@ -16,3 +16,8 @@ build/
 htmlcov/
 .mypy_cache/
 .ruff_cache/
+
+# Credential and temporary files
+test_credentials.txt
+*.pid
+server.pid
