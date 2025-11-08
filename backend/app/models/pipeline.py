@@ -28,6 +28,7 @@ class Pipeline(TenantModel):
     # Relationships
     organization = relationship("Organization", back_populates="pipelines")
     documents = relationship("Document", back_populates="pipeline")
+    processing_jobs = relationship("ProcessingJob", back_populates="pipeline", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Pipeline(id={self.id}, name={self.name}, type={self.type})>"

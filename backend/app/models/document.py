@@ -42,6 +42,7 @@ class Document(TenantModel):
     assigned_to = relationship("User", foreign_keys=[assigned_to_id], back_populates="assigned_documents")
     pipeline = relationship("Pipeline", back_populates="documents")
     tasks = relationship("Task", back_populates="document")
+    processing_jobs = relationship("ProcessingJob", back_populates="document", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Document(id={self.id}, filename={self.filename}, status={self.status})>"
