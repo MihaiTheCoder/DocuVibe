@@ -70,7 +70,18 @@
       "Bash(wsl:*)",
       "Bash(powershell -ExecutionPolicy Bypass -File \"preflight-check.ps1\")",
       "Bash(venv/Scripts/python.exe:*)",
-      "Bash(echo $GITHUB_TOKEN)"
+      "Bash(echo $GITHUB_TOKEN)",
+      "Bash(az webapp list:*)",
+      "Bash(az webapp log deployment:*)",
+      "Bash(az webapp log:*)",
+      "Bash(tar:*)",
+      "Bash(unzip:*)",
+      "Bash(rm:*)",
+      "Bash(git reset:*)",
+      "Bash(ping:*)",
+      "Bash(nul)",
+      "Bash(az webapp config appsettings set:*)",
+      "Bash(az webapp restart:*)"
     ],
     "deny": [],
     "ask": []
