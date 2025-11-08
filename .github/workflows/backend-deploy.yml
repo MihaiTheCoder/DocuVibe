@@ -32,7 +32,11 @@ jobs:
     - name: Create deployment package
       run: |
         cd backend
-        zip -r ../deploy.zip . -x "*.pyc" -x "__pycache__/*"
+        # Replace full requirements with minimal for deployment
+        mv requirements.txt requirements-full.txt
+        cp requirements-minimal.txt requirements.txt
+        # Create deployment zip
+        zip -r ../deploy.zip . -x "*.pyc" -x "__pycache__/*" -x "venv/*" -x "requirements-full.txt"
 
     - name: Login to Azure
       uses: azure/login@v1
