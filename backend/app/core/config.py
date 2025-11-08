@@ -63,6 +63,11 @@ class Settings(BaseSettings):
     GITHUB_REPO: str = "yourusername/vibedocs"
     LAZY_BIRD_API_URL: str = "https://api.lazy-bird.com"
     LAZY_BIRD_API_KEY: Optional[str] = None
+    GITHUB_AUTO_MERGE_EASY: bool = True
+    GITHUB_REQUIRE_APPROVAL_FOR_MERGE: bool = False  # Set to True in production
+
+    # Anthropic API (for Claude Code CLI in WSL2)
+    ANTHROPIC_API_KEY: Optional[str] = None
 
     # Mistral OCR
     MISTRAL_OCR_URL: str = "http://localhost:8080"

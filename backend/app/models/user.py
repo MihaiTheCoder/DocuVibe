@@ -33,6 +33,7 @@ class User(Base):
     assigned_documents = relationship("Document", back_populates="assigned_to", foreign_keys="Document.assigned_to_id")
     assigned_tasks = relationship("Task", back_populates="assigned_to", foreign_keys="Task.assigned_to_id")
     created_tasks = relationship("Task", back_populates="assigned_by", foreign_keys="Task.assigned_by_id")
+    conversations = relationship("Conversation", back_populates="user")
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email})>"

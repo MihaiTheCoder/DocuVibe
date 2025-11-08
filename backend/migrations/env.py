@@ -15,7 +15,7 @@ from app.core.config import settings
 from app.core.database import Base
 from app.models import (
     user, organization, document, pipeline,
-    task, workflow, notification
+    task, workflow, notification, conversation, github_integration
 )
 
 # this is the Alembic Config object, which provides

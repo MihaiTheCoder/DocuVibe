@@ -32,6 +32,7 @@ class Organization(Base):
     workflows = relationship("Workflow", back_populates="organization")
     tasks = relationship("Task", back_populates="organization")
     notifications = relationship("Notification", back_populates="organization")
+    conversations = relationship("Conversation", back_populates="organization")
 
     def __repr__(self):
         return f"<Organization(id={self.id}, name={self.name})>"

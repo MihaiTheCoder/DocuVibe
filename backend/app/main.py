@@ -10,6 +10,8 @@ from app.core.config import settings
 from app.core.database import init_db
 from app.services.qdrant_service import qdrant_service
 from app.workers.manager import worker_manager
+from app.workers.github_monitor import run_github_monitor
+import asyncio
 from app.api.routes.health import router as health_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.documents import router as documents_router
@@ -52,10 +54,30 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"Warning: Failed to start workers: {e}")
 
+    # Start GitHub monitor in background
+    github_monitor_task = None
+    if settings.GITHUB_TOKEN:
+        try:
+            github_monitor_task = asyncio.create_task(run_github_monitor())
+            print("GitHub monitor started")
+        except Exception as e:
+            print(f"Warning: Failed to start GitHub monitor: {e}")
+    else:
+        print("GitHub monitor disabled (GITHUB_TOKEN not configured)")
+
     yield
 
     # Shutdown
     print("Shutting down VibeDocs Backend...")
+
+    # Stop GitHub monitor
+    if github_monitor_task and not github_monitor_task.done():
+        github_monitor_task.cancel()
+        try:
+            await github_monitor_task
+        except asyncio.CancelledError:
+            pass
+        print("GitHub monitor stopped")
 
     # Stop workers
     if worker_manager.running:
