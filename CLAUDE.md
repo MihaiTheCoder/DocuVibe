@@ -28,6 +28,7 @@ VibeDocs is an AI-powered document management system optimized for Romanian hosp
 - Pydantic (validation)
 - Qdrant (vector database for hybrid search)
 - Mistral OCR (document processing)
+- Azure Blob Storage (document storage)
 
 **Authentication:**
 - Google OAuth 2.0 for login
@@ -235,11 +236,14 @@ cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn main:app --reload  # Start development server
-pytest                     # Run tests
-black .                    # Format code
-ruff check .              # Lint code
+uvicorn app.main:app --reload  # Start development server
+pytest                          # Run tests
+black .                         # Format code
+ruff check .                    # Lint code
 ```
+
+**VS Code Users**: Virtual environment is already set up! Press `F5` to start debugging.
+See [VSCODE_SETUP.md](VSCODE_SETUP.md) for debugger configuration details.
 
 ## Code Style Guidelines
 

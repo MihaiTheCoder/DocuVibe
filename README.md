@@ -79,6 +79,24 @@ npm run dev
 
 9. Open http://localhost:3000 in your browser
 
+## Deployment
+
+### Azure (Recommended for Dev/Test)
+See [AZURE_DEPLOYMENT.md](AZURE_DEPLOYMENT.md) for detailed Azure deployment instructions.
+
+Key features:
+- No Docker required
+- Uses Azure native services
+- GitHub Actions CI/CD
+- Azure Blob Storage for documents
+- Suitable for dev/test environments
+
+### Local Development
+Use Docker Compose for local development:
+```bash
+docker-compose up
+```
+
 ## Development
 
 ### Backend Development
