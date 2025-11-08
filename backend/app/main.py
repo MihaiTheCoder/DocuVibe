@@ -8,12 +8,15 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.database import init_db
+from app.services.qdrant_service import qdrant_service
 from app.api.routes.health import router as health_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.documents import router as documents_router
 from app.api.routes.pipelines import router as pipelines_router
 from app.api.routes.workflows import router as workflows_router
 from app.api.routes.chat import router as chat_router
+from app.api.routes.search import router as search_router
+from app.api.routes.registry import router as registry_router
 
 
 @asynccontextmanager
@@ -28,6 +31,13 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"Warning: Database initialization failed: {e}")
         print("Continuing without database for hello world demo...")
+
+    # Initialize Qdrant service
+    try:
+        await qdrant_service.initialize()
+    except Exception as e:
+        print(f"Warning: Qdrant initialization failed: {e}")
+        print("Search features may be limited without Qdrant...")
 
     yield
 
@@ -58,3 +68,5 @@ app.include_router(documents_router, prefix=settings.API_V1_STR)
 app.include_router(pipelines_router, prefix=settings.API_V1_STR)
 app.include_router(workflows_router, prefix=settings.API_V1_STR)
 app.include_router(chat_router, prefix=settings.API_V1_STR)
+app.include_router(search_router, prefix=settings.API_V1_STR)
+app.include_router(registry_router, prefix=settings.API_V1_STR)
