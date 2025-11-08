@@ -100,9 +100,9 @@ class BaseWorker(ABC):
                 select(ProcessingJob)
                 .where(
                     or_(
-                        ProcessingJob.status == JobStatus.PENDING,
+                        ProcessingJob.status == JobStatus.PENDING.value,
                         and_(
-                            ProcessingJob.status == JobStatus.PROCESSING,
+                            ProcessingJob.status == JobStatus.PROCESSING.value,
                             ProcessingJob.lock_expires_at < now
                         )
                     )
@@ -120,7 +120,7 @@ class BaseWorker(ABC):
 
             if job and self.can_process_job(job):
                 # Claim the job
-                job.status = JobStatus.PROCESSING
+                job.status = JobStatus.PROCESSING.value
                 job.worker_id = self.worker_id
                 job.locked_at = now
                 job.lock_expires_at = lock_expires
@@ -143,7 +143,7 @@ class BaseWorker(ABC):
             now = datetime.utcnow()
             processing_time = (now - job.started_at).total_seconds() * 1000 if job.started_at else 0
 
-            job.status = JobStatus.COMPLETED
+            job.status = JobStatus.COMPLETED.value
             job.completed_at = now
             job.processing_time_ms = int(processing_time)
             job.result = str(result) if result else None
@@ -161,7 +161,7 @@ class BaseWorker(ABC):
     async def fail_job(self, job: ProcessingJob, error: Exception, db: Session):
         """Mark job as failed with error details"""
         try:
-            job.status = JobStatus.FAILED
+            job.status = JobStatus.FAILED.value
             job.completed_at = datetime.utcnow()
             job.error_message = str(error)
             job.error_details = traceback.format_exc()
@@ -169,7 +169,7 @@ class BaseWorker(ABC):
 
             # If retries available, reset to pending
             if job.retry_count < job.max_retries:
-                job.status = JobStatus.PENDING
+                job.status = JobStatus.PENDING.value
                 job.worker_id = None
                 job.locked_at = None
                 job.lock_expires_at = None

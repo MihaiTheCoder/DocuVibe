@@ -51,10 +51,10 @@ class GitHubMonitor:
             # Get issues that need checking
             issues = db.query(GitHubIssue).filter(
                 GitHubIssue.status.in_([
-                    IssueStatus.READY,
-                    IssueStatus.IN_PROGRESS,
-                    IssueStatus.PR_CREATED,
-                    IssueStatus.TESTING
+                    IssueStatus.READY.value,
+                    IssueStatus.IN_PROGRESS.value,
+                    IssueStatus.PR_CREATED.value,
+                    IssueStatus.TESTING.value
                 ])
             ).all()
 

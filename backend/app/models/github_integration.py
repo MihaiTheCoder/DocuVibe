@@ -2,7 +2,8 @@
 GitHub Integration Models
 """
 
-from sqlalchemy import Column, String, Text, ForeignKey, DateTime, Enum, Boolean, Integer, JSON
+from sqlalchemy import Column, String, Text, ForeignKey, DateTime, Boolean, Integer, JSON
+from sqlalchemy.types import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
@@ -43,11 +44,11 @@ class GitHubIssue(Base):
     issue_url = Column(String(500))
     issue_title = Column(String(200), nullable=False)
     issue_body = Column(Text)
-    difficulty = Column(Enum(IssueDifficulty), default=IssueDifficulty.UNKNOWN)
+    difficulty = Column(String(50), default=IssueDifficulty.UNKNOWN.value)
     labels = Column(JSON, default=[])
 
     # Status tracking
-    status = Column(Enum(IssueStatus), default=IssueStatus.CREATED)
+    status = Column(String(50), default=IssueStatus.CREATED.value)
     pr_number = Column(Integer)
     pr_url = Column(String(500))
     auto_merge_enabled = Column(Boolean, default=False)

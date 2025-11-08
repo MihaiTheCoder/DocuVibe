@@ -2,7 +2,8 @@
 Conversation and Message Models
 """
 
-from sqlalchemy import Column, String, Text, ForeignKey, DateTime, Enum, JSON
+from sqlalchemy import Column, String, Text, ForeignKey, DateTime, JSON
+from sqlalchemy.types import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
@@ -31,7 +32,7 @@ class Conversation(Base):
     organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     title = Column(String(200))
-    status = Column(Enum(ConversationStatus), default=ConversationStatus.ACTIVE)
+    status = Column(String(50), default=ConversationStatus.ACTIVE.value)
     meta_data = Column(JSON, default={})
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -48,7 +49,7 @@ class Message(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversations.id"), nullable=False)
-    role = Column(Enum(MessageRole), nullable=False)
+    role = Column(String(50), nullable=False)
     content = Column(Text, nullable=False)
     meta_data = Column(JSON, default={})  # For storing parsed intents, actions, etc.
     created_at = Column(DateTime, default=datetime.utcnow)

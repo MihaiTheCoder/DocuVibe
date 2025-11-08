@@ -4,7 +4,8 @@ Processing Job Model
 Tracks document processing jobs and their state.
 """
 
-from sqlalchemy import Column, String, DateTime, Integer, Text, ForeignKey, Enum, BigInteger
+from sqlalchemy import Column, String, DateTime, Integer, Text, ForeignKey, BigInteger
+from sqlalchemy.types import Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -32,8 +33,8 @@ class ProcessingJob(TenantModel):
     __tablename__ = "processing_jobs"
 
     # Job identification
-    job_type = Column(Enum(JobType), default=JobType.DOCUMENT_PROCESSING, nullable=False)
-    status = Column(Enum(JobStatus), default=JobStatus.PENDING, nullable=False)
+    job_type = Column(String(50), default=JobType.DOCUMENT_PROCESSING.value, nullable=False)
+    status = Column(String(50), default=JobStatus.PENDING.value, nullable=False)
 
     # Related entities
     document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=False)
