@@ -236,8 +236,8 @@ def downgrade() -> None:
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Migration applies cleanly: `cd backend && alembic upgrade head`
-- [ ] Models import without errors: `cd backend && python -c "from app.models.processing_job import ProcessingJob"`
+- [x] Migration applies cleanly: `cd backend && alembic upgrade head`
+- [x] Models import without errors: `cd backend && python -c "from app.models.processing_job import ProcessingJob"`
 - [ ] No linting errors: `cd backend && ruff check app/models/`
 
 #### Manual Verification:
