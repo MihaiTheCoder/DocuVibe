@@ -39,16 +39,6 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Upload to Azure Storage
-      uses: azure/cli@v1
-      with:
-        inlineScript: |
-          az storage blob upload-batch \
-            --account-name vibedocsstorage \
-            --source frontend/dist \
-            --destination '$web' \
-            --overwrite
-
     - name: Enable static website
       uses: azure/cli@v1
       with:
@@ -57,4 +47,16 @@ jobs:
             --account-name vibedocsstorage \
             --static-website \
             --index-document index.html \
-            --404-document index.html
+            --404-document index.html \
+            --auth-mode login
+
+    - name: Upload to Azure Storage
+      uses: azure/cli@v1
+      with:
+        inlineScript: |
+          az storage blob upload-batch \
+            --account-name vibedocsstorage \
+            --source frontend/dist \
+            --destination '$web' \
+            --overwrite \
+            --auth-mode login
