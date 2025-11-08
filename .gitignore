@@ -76,3 +76,8 @@ docs/.sphinx/
 *.bak
 tmp/
 temp/
+
+# Credential and process files
+test_credentials.txt
+*.pid
+server.pid
