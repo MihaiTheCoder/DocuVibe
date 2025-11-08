@@ -2,7 +2,7 @@
 Base Model for Multi-tenant Architecture
 """
 
-from sqlalchemy import Column, String, DateTime, UUID
+from sqlalchemy import Column, String, DateTime, UUID, ForeignKey
 from sqlalchemy.sql import func
 import uuid
 
@@ -17,7 +17,7 @@ class TenantModel(Base):
     __abstract__ = True
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    organization_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 

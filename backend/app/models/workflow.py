@@ -40,7 +40,7 @@ class WorkflowExecution(TenantModel):
     results = Column(JSON)
 
     # Relationships
-    organization = relationship("Organization")
+    # Note: organization relationship is implicit through TenantModel.organization_id
     workflow = relationship("Workflow", back_populates="executions")
     tasks = relationship("Task", back_populates="workflow_execution")
 
