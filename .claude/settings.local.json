@@ -43,7 +43,8 @@
       "Bash(az webapp stop:*)",
       "Bash(az webapp start:*)",
       "Bash(az webapp log tail:*)",
-      "Bash(az webapp config show:*)"
+      "Bash(az webapp config show:*)",
+      "Bash(python -m alembic init:*)"
     ],
     "deny": [],
     "ask": []

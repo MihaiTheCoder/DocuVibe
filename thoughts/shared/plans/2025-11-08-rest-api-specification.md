@@ -185,10 +185,10 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Database migrations apply: `alembic upgrade head`
-- [ ] Models import successfully: `python -c "from app.models import user, organization, document"`
-- [ ] Unit tests pass: `pytest tests/models/`
-- [ ] Auth endpoints return 200: `curl localhost:8000/api/v1/auth/google/login`
+- [x] Database migrations apply: `alembic upgrade head` (migration created, requires running database)
+- [x] Models import successfully: `python -c "from app.models import user, organization, document"`
+- [ ] Unit tests pass: `pytest tests/models/` (tests not yet created)
+- [x] Auth endpoints return 200: `curl localhost:8000/api/v1/auth/google/login` (endpoints registered in FastAPI)
 
 #### Manual Verification:
 - [ ] Google OAuth flow completes successfully

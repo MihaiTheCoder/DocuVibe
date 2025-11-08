@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.routes.health import router as health_router
+from app.api.routes.auth import router as auth_router
 
 
 @asynccontextmanager
@@ -46,5 +47,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include health check router
+# Include routers
 app.include_router(health_router, prefix=settings.API_V1_STR, tags=["Health"])
+app.include_router(auth_router, prefix=settings.API_V1_STR)
