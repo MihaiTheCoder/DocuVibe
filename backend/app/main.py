@@ -10,6 +10,10 @@ from app.core.config import settings
 from app.core.database import init_db
 from app.api.routes.health import router as health_router
 from app.api.routes.auth import router as auth_router
+from app.api.routes.documents import router as documents_router
+from app.api.routes.pipelines import router as pipelines_router
+from app.api.routes.workflows import router as workflows_router
+from app.api.routes.chat import router as chat_router
 
 
 @asynccontextmanager
@@ -50,3 +54,7 @@ app.add_middleware(
 # Include routers
 app.include_router(health_router, prefix=settings.API_V1_STR, tags=["Health"])
 app.include_router(auth_router, prefix=settings.API_V1_STR)
+app.include_router(documents_router, prefix=settings.API_V1_STR)
+app.include_router(pipelines_router, prefix=settings.API_V1_STR)
+app.include_router(workflows_router, prefix=settings.API_V1_STR)
+app.include_router(chat_router, prefix=settings.API_V1_STR)
