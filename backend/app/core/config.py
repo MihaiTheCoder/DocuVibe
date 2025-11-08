@@ -4,13 +4,17 @@ Application Configuration
 
 from pydantic_settings import BaseSettings
 from typing import Optional
+import os
 
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
-    # Database
-    DATABASE_URL: str = "postgresql://vibedocs:password@localhost:5432/vibedocs"
+    # Database - Azure PostgreSQL compatible
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL",
+        "postgresql://vibedocs:password@localhost:5432/vibedocs"
+    )
 
     # Security
     SECRET_KEY: str = "change-this-secret-key-in-production"
@@ -18,19 +22,34 @@ class Settings(BaseSettings):
     JWT_EXPIRATION_HOURS: int = 24
 
     # Google OAuth
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_CLIENT_ID: Optional[str] = None
+    GOOGLE_CLIENT_SECRET: Optional[str] = None
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/auth/google/callback"
 
-    # Qdrant
-    QDRANT_URL: str = "http://localhost:6333"
+    # Qdrant - Azure App Service compatible
+    QDRANT_HOST: str = os.getenv("QDRANT_HOST", "localhost")
+    QDRANT_PORT: int = int(os.getenv("QDRANT_PORT", "6333"))
+    QDRANT_HTTPS: bool = os.getenv("QDRANT_HTTPS", "false").lower() == "true"
     QDRANT_API_KEY: Optional[str] = None
 
-    # MinIO
+    @property
+    def QDRANT_URL(self) -> str:
+        """Build Qdrant URL from components"""
+        protocol = "https" if self.QDRANT_HTTPS else "http"
+        return f"{protocol}://{self.QDRANT_HOST}:{self.QDRANT_PORT}"
+
+    # Azure Blob Storage (replaces MinIO for Azure deployments)
+    AZURE_STORAGE_CONNECTION_STRING: str = os.getenv("AZURE_STORAGE_CONNECTION_STRING", "")
+    AZURE_STORAGE_CONTAINER: str = "documents"
+
+    # MinIO (for local development)
     MINIO_URL: str = "http://localhost:9000"
     MINIO_ACCESS_KEY: str = "minioadmin"
     MINIO_SECRET_KEY: str = "minioadmin"
     MINIO_BUCKET_NAME: str = "vibedocs"
+
+    # Use Azure Blob Storage if connection string is provided, otherwise MinIO
+    USE_AZURE_STORAGE: bool = bool(os.getenv("AZURE_STORAGE_CONNECTION_STRING"))
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -50,10 +69,17 @@ class Settings(BaseSettings):
     MISTRAL_OCR_API_KEY: Optional[str] = None
 
     # Frontend
-    FRONTEND_URL: str = "http://localhost:3000"
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
     # Environment
     ENVIRONMENT: str = "development"
+
+    # API Settings
+    API_V1_STR: str = "/api/v1"
+    PROJECT_NAME: str = "VibeDocs"
+
+    # CORS - Allow all origins for dev/test
+    BACKEND_CORS_ORIGINS: list = ["*"]
 
     class Config:
         env_file = ".env"

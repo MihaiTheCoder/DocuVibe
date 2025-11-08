@@ -43,7 +43,13 @@ async def init_db():
     Called on application startup
     """
     # Import all models here to ensure they are registered
-    from app.models import user, organization, document  # noqa
+    # For hello world version, models are not yet created
+    try:
+        from app.models import user, organization, document  # noqa
+        print("Models imported successfully")
+    except ImportError as e:
+        print(f"Skipping model imports (hello world mode): {e}")
 
+    # Create tables from imported models
     Base.metadata.create_all(bind=engine)
     print("Database initialized successfully")
