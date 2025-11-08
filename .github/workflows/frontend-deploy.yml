@@ -1,0 +1,60 @@
+name: Deploy Frontend to Azure Storage
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Build application
+      run: |
+        cd frontend
+        npm run build
+      env:
+        VITE_API_URL: https://app-vibedocs-backend-dev.azurewebsites.net/api/v1
+
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Upload to Azure Storage
+      uses: azure/cli@v1
+      with:
+        inlineScript: |
+          az storage blob upload-batch \
+            --account-name vibedocsstorage \
+            --source frontend/dist \
+            --destination '$web' \
+            --overwrite
+
+    - name: Enable static website
+      uses: azure/cli@v1
+      with:
+        inlineScript: |
+          az storage blob service-properties update \
+            --account-name vibedocsstorage \
+            --static-website \
+            --index-document index.html \
+            --404-document index.html
