@@ -78,6 +78,11 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "VibeDocs"
 
+    # Worker configuration
+    DOCUMENT_WORKERS_COUNT: int = int(os.getenv("DOCUMENT_WORKERS_COUNT", "2"))
+    WORKER_POLL_INTERVAL: int = int(os.getenv("WORKER_POLL_INTERVAL", "5"))  # seconds
+    WORKER_LOCK_DURATION: int = int(os.getenv("WORKER_LOCK_DURATION", "300"))  # seconds
+
     # CORS - Allow all origins for dev/test
     BACKEND_CORS_ORIGINS: list = ["*"]
 

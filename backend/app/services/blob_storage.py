@@ -101,6 +101,38 @@ class BlobStorageService:
         blob_client.delete_blob()
         return True
 
+    async def download_document(self, blob_name: str) -> bytes:
+        """
+        Download a document from blob storage
+
+        Args:
+            blob_name: Name/path of the blob
+
+        Returns:
+            Document content as bytes
+
+        Raises:
+            NotImplementedError: If storage backend not configured
+            Exception: If download fails
+        """
+        if not self.use_azure:
+            raise NotImplementedError("Local storage not yet implemented")
+
+        try:
+            blob_client = self.blob_service_client.get_blob_client(
+                container=self.container_name,
+                blob=blob_name
+            )
+
+            # Download blob content
+            blob_data = blob_client.download_blob()
+            content = blob_data.readall()
+
+            return content
+
+        except Exception as e:
+            raise Exception(f"Failed to download blob {blob_name}: {str(e)}")
+
     def is_configured(self) -> bool:
         """Check if blob storage is properly configured"""
         return self.use_azure

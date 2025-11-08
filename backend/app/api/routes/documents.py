@@ -17,6 +17,7 @@ from app.core.database import get_db
 from app.models.user import User
 from app.models.organization import Organization
 from app.models.document import Document
+from app.models.processing_job import ProcessingJob, JobStatus, JobType
 from app.schemas.document import (
     DocumentUploadResponse,
     DocumentResponse,
@@ -104,12 +105,26 @@ async def upload_document(
         db.commit()
         db.refresh(document)
 
+        # Create processing job
+        processing_job = ProcessingJob(
+            organization_id=organization.id,
+            job_type=JobType.DOCUMENT_PROCESSING,
+            status=JobStatus.PENDING,
+            document_id=document.id,
+            priority=0,  # Default priority
+            max_retries=3
+        )
+
+        db.add(processing_job)
+        db.commit()
+        db.refresh(processing_job)
+
         return DocumentUploadResponse(
             id=str(document.id),
             filename=document.filename,
             file_size=file_size,
             status=document.status,
-            processing_job_id=None  # Will be set when processing starts
+            processing_job_id=str(processing_job.id)
         )
 
     except Exception as e:
@@ -536,11 +551,23 @@ async def reprocess_document(
     try:
         db.commit()
 
-        # TODO: Trigger actual background processing job
-        job_id = str(uuid.uuid4())
+        # Create reprocessing job
+        processing_job = ProcessingJob(
+            organization_id=organization.id,
+            job_type=JobType.DOCUMENT_REPROCESSING,
+            status=JobStatus.PENDING,
+            document_id=document.id,
+            pipeline_id=document.pipeline_id,
+            priority=1,  # Higher priority for reprocessing
+            max_retries=3
+        )
+
+        db.add(processing_job)
+        db.commit()
+        db.refresh(processing_job)
 
         return {
-            "job_id": job_id,
+            "job_id": str(processing_job.id),
             "status": "queued",
             "document_id": str(document.id)
         }
