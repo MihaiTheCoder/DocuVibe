@@ -36,7 +36,14 @@
       "Bash(backend/.gitignore)",
       "Bash(npm run type-check:*)",
       "Bash(npm run build:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(gh run list:*)",
+      "Bash(az storage blob service-properties update:*)",
+      "Bash(az webapp deployment:*)",
+      "Bash(az webapp stop:*)",
+      "Bash(az webapp start:*)",
+      "Bash(az webapp log tail:*)",
+      "Bash(az webapp config show:*)"
     ],
     "deny": [],
     "ask": []
