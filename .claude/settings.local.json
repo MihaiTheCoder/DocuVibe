@@ -44,7 +44,17 @@
       "Bash(az webapp start:*)",
       "Bash(az webapp log tail:*)",
       "Bash(az webapp config show:*)",
-      "Bash(python -m alembic init:*)"
+      "Bash(python -m alembic init:*)",
+      "Bash(timeout:*)",
+      "Bash(python:*)",
+      "Bash(az postgres flexible-server list:*)",
+      "Bash(az postgres flexible-server db list:*)",
+      "Bash(az postgres flexible-server firewall-rule list:*)",
+      "Bash(az group:*)",
+      "Bash(az webapp config appsettings list:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(.venvScriptspython.exe -m alembic upgrade head)"
     ],
     "deny": [],
     "ask": []
