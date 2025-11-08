@@ -48,7 +48,7 @@ jobs:
             --static-website \
             --index-document index.html \
             --404-document index.html \
-            --auth-mode login
+            --connection-string "${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}"
 
     - name: Upload to Azure Storage
       uses: azure/cli@v1
@@ -59,4 +59,4 @@ jobs:
             --source frontend/dist \
             --destination '$web' \
             --overwrite \
-            --auth-mode login
+            --connection-string "${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}"
